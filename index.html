@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wordle</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+      }
+      .header {
+        align-self: center;
+        font-size: 2rem;
+        margin-bottom: 5%;
+      }
+      .container {
+        align-self: center;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        width: 200px;
+        height: 300px;
+      }
+      .letters {
+        width: 30px;
+        height: 30px;
+        border: 1px solid rgb(112, 112, 112);
+        text-align: center;
+        font-size: 1rem;
+      }
+      .keyboard {
+        align-self: center;
+        width: 400px;
+        height: 100px;
+        text-align: center;
+      }
+      .topRow,
+      .middleRow,
+      .bottomRow {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        margin-bottom: 10px;
+        justify-items: center;
+      }
+      .middleRow {
+        grid-template-columns: repeat(9, 1fr);
+      }
+      .bottomRow {
+        grid-template-columns: repeat(7, 1fr);
+      }
+      .keys {
+        border: 1px solid rgb(112, 112, 112);
+        width: 30px;
+        height: 20px;
+        border-radius: 5px;
+      }
+      .enter {
+        border-radius: 5px;
+        background-color: #92e1fb;
+        padding: 12px 28px;
+        font-size: large;
+      }
+      .stats {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        font-family: Arial, Helvetica, sans-serif;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">Unlimited Wordle</div>
+    <div class="container">
+      <input
+        type="text"
+        class="letters"
+        maxlength="1"
+        id="1"
+        onkeyup="moveToNext(this)"
+      />
+      <input
+        type="text"
+        class="letters"
+        maxlength="1"
+        id="2"
+        onkeyup="moveToNext(this)"
+      />
+      <input
+        type="text"
+        class="letters"
+        maxlength="1"
+        id="3"
+        onkeyup="moveToNext(this)"
+      />
+      <input
+        type="text"
+        class="letters"
+        maxlength="1"
+        id="4"
+        onkeyup="moveToNext(this)"
+      />
+      <input
+        type="text"
+        class="letters"
+        maxlength="1"
+        id="5"
+        onkeyup="moveToNext(this)"
+      />
+    </div>
+    <div class="keyboard">
+      <div class="topRow">
+        <div class="keys q Q">Q</div>
+        <div class="keys w W">W</div>
+        <div class="keys e E">E</div>
+        <div class="keys r R">R</div>
+        <div class="keys t T">T</div>
+        <div class="keys y Y">Y</div>
+        <div class="keys u U">U</div>
+        <div class="keys i I">I</div>
+        <div class="keys o O">O</div>
+        <div class="keys p P">P</div>
+      </div>
+
+      <div class="middleRow">
+        <div class="keys a A">A</div>
+        <div class="keys s S">S</div>
+        <div class="keys d D">D</div>
+        <div class="keys f F">F</div>
+        <div class="keys g G">G</div>
+        <div class="keys h H">H</div>
+        <div class="keys j J">J</div>
+        <div class="keys k K">K</div>
+        <div class="keys l L">L</div>
+      </div>
+
+      <div class="bottomRow">
+        <div class="keys z Z">Z</div>
+        <div class="keys x X">X</div>
+        <div class="keys c C">C</div>
+        <div class="keys v V">V</div>
+        <div class="keys b B">B</div>
+        <div class="keys n N">N</div>
+        <div class="keys m M">M</div>
+      </div>
+
+      <button class="enter" onclick="checkWord()">Enter</button>
+      <button class="enter" onclick="reset()">Reset</button>
+      <div class="stats"></div>
+    </div>
+  </body>
+
+  <script>
+    let wordsArray = [
+      "spike",
+      "think",
+      "money",
+      "brick",
+      "plate",
+      "misty",
+      "print",
+      "music",
+      "phone",
+      "frame",
+      "cabin",
+      "gates",
+      "early",
+      "earth",
+      "ghost",
+      "genre",
+      "image",
+      "inbox",
+      "index",
+      "laser",
+      "sharp",
+      "shelf",
+      "shine",
+      "solid",
+      "space",
+      "quilt",
+    ];
+    let word = wordsArray[parseInt(Math.random() * wordsArray.length)];
+    let container = document.querySelector(".container");
+    let statsDiv = document.querySelector(".stats");
+    let tryNo = 0;
+    let gamesWon = 0;
+    let won = false;
+    let played = 0;
+
+    function checkWord() {
+      tryNo++;
+      if (tryNo < 6) {
+        let sameLetter = 0;
+        let letters = document.querySelectorAll(".letters");
+        let wordArray = [...word];
+
+        let lastFiveLetters = Array.from(letters).slice(-5);
+        let inputArray = [];
+
+        lastFiveLetters.forEach((ele, i) => {
+          inputArray.push(lastFiveLetters[i].value.toLowerCase());
+          if (wordArray[i] === inputArray[i]) {
+            sameLetter++;
+          }
+          if (sameLetter === 5) {
+            finishRound("won");
+            won = true;
+          }
+        });
+
+        lastFiveLetters.forEach((ele, i) => {
+          ele.value = ele.value.toLowerCase();
+          if (wordArray.includes(ele.value)) {
+            let colorInputElement = document.getElementById(`${ele.id}`);
+            let colorKeyboardElement = document.querySelector(`.${ele.value}`);
+
+            if (ele.value === word[i]) {
+              colorInputElement.setAttribute("style", "background-color:green");
+              colorKeyboardElement.setAttribute(
+                "style",
+                "background-color:green"
+              );
+            } else {
+              colorInputElement.setAttribute(
+                "style",
+                "background-color:yellow"
+              );
+              colorKeyboardElement.setAttribute(
+                "style",
+                "background-color:yellow"
+              );
+            }
+          } else {
+            let colorKeyboardElement = document.querySelector(`.${ele.value}`);
+            colorKeyboardElement.setAttribute("style", "background-color:gray");
+          }
+        });
+        if (won === false) {
+          for (let n = 0; n < 5; n++) {
+            let newInput = document.createElement("input");
+            newInput.setAttribute("type", `text`);
+            newInput.setAttribute("id", `${tryNo * 5 + n + 1}`);
+            newInput.setAttribute("maxlength", 1);
+            newInput.setAttribute("class", "letters");
+            newInput.setAttribute("onkeyup", "moveToNext(this)");
+            container.appendChild(newInput);
+          }
+        }
+      } else {
+        finishRound();
+      }
+    }
+    function finishRound(result) {
+      if (result === "won") {
+        gamesWon++;
+        played++;
+
+        statsDiv.innerHTML = `Won ${gamesWon} Played${played}`;
+      } else {
+        played++;
+        statsDiv.innerHTML = `Won ${gamesWon} Played${played}`;
+      }
+    }
+    function reset() {
+      tryNo = 0;
+      won = false;
+      word = wordsArray[parseInt(Math.random() * 9)];
+      //clear top board
+      let selectInputs = document.querySelectorAll(".letters");
+      selectInputs.forEach((ele, i) => {
+        let containerWithId = document.getElementById(`${i + 1}`);
+        if (i > 4) {
+          containerWithId.remove();
+        } else {
+          containerWithId.value = "";
+          containerWithId.setAttribute("style", "background-color: none");
+        }
+      });
+      //clear keyboard
+      let keys = document.querySelectorAll(".keys");
+      keys.forEach((ele, i) => {
+        ele.setAttribute("style", "background-color: none");
+      });
+    }
+    function moveToNext(current) {
+      if (Number(current.id) % 5 !== 0) {
+        document.getElementById(`${Number(current.id) + 1}`).focus();
+      }
+    }
+  </script>
+</html>
